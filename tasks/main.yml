@@ -7,6 +7,8 @@
       - ipa_domain is string and ipa_domain is defined and ipa_domain != ''
       - ipa_admin_username is string and ipa_admin_username is defined and ipa_admin_username != ''
       - ipa_admin_password is string and ipa_admin_password is defined and ipa_admin_password != ''
+      - ipa_server_ip is string and ipa_server_ip is defined and ipa_server_ip != ''
+      - ipa_server_hostname is string and ipa_server_hostname is defined and ipa_server_hostname != ''
     fail_msg: "Input validation failed. All variables in vars/main.yml must be non-empty strings, and password_allowed_ip_ranges must be a non-empty list. See README.md for details."
     success_msg: "User input configuration is valid."
 
@@ -166,6 +168,34 @@
   register: ipa_host_del
   changed_when: ipa_host_del.rc == 0
   failed_when: ipa_host_del.rc != 0 and 'host not found' not in ipa_host_del.stderr
+
+- name: Enroll in LDAP if host configuration missing
+  ansible.builtin.command:
+    argv:
+      - ipa-client-install
+      - --domain={{ ipa_domain }}
+      - --enable-dns-updates
+      - --mkhomedir
+      - --principal={{ ipa_admin_username }}
+      - --password={{ ipa_admin_password }}
+      - --force-join
+      - --unattended
+  when:
+    - not ipa_config_stat.stat.exists
+  changed_when: ipa_client_install.rc == 0
+  register: ipa_client_install
+
+- name: Enroll in DNS if host configuration is missing
+  community.general.ipa_host:
+    name: "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+    ip_address: "{{ ansible_default_ipv4.address }}"
+    state: present
+    ipa_host: "{{ ipa_server_hostname }}.{{ ipa_domain }}"
+    ipa_user: "{{ ipa_admin_username }}"
+    ipa_pass: "{{ ipa_admin_password }}"
+    validate_certs: false
+  when:
+    - not ipa_config_stat.stat.exists
 
 - name: Gather package facts
   ansible.builtin.package_facts:

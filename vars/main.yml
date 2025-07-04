@@ -3,3 +3,5 @@ ipa_client_hostname: null
 ipa_domain: null
 ipa_admin_username: null
 ipa_admin_password: null
+ipa_server_ip: null
+ipa_server_hostname: ldap

@@ -49,6 +49,29 @@
     update_cache: false
   when: ansible_facts['distribution'] == 'Rocky'
 
+- name: Check current authselect profile (RockyLinux)
+  ansible.builtin.command:
+    cmd: authselect current
+  register: authselect_current
+  changed_when: false
+  failed_when: false
+  when: ansible_facts['distribution'] == 'Rocky'
+
+- name: Setup authselect to use SSSD if configuration is missing (RockyLinux)
+  ansible.builtin.command:
+    argv:
+      - authselect
+      - select
+      - sssd
+      - with-mkhomedir
+      - --force
+  when:
+    - ansible_facts['distribution'] == 'Rocky'
+    - authselect_current.rc != 0 or 'sssd' not in authselect_current.stdout or 'with-mkhomedir' not in authselect_current.stdout
+  register: authselectout
+  changed_when: authselectout.rc == 0
+  notify: Restart sssd
+
 - name: Gather package facts
   ansible.builtin.package_facts:
     manager: auto

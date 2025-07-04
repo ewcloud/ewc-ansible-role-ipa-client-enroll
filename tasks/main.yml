@@ -5,6 +5,8 @@
       - password_allowed_ip_ranges is defined and password_allowed_ip_ranges is iterable and password_allowed_ip_ranges | length > 0
       - ipa_client_hostname is string and ipa_client_hostname is defined and ipa_client_hostname != ''
       - ipa_domain is string and ipa_domain is defined and ipa_domain != ''
+      - ipa_admin_username is string and ipa_admin_username is defined and ipa_admin_username != ''
+      - ipa_admin_password is string and ipa_admin_password is defined and ipa_admin_password != ''
     fail_msg: "Input validation failed. All variables in vars/main.yml must be non-empty strings, and password_allowed_ip_ranges must be a non-empty list. See README.md for details."
     success_msg: "User input configuration is valid."
 
@@ -129,6 +131,41 @@
     line: '{{ ansible_default_ipv4.address }} {{ ipa_client_hostname }}.{{ ipa_domain }}'
     insertafter: BOF
     state: present
+
+- name: Authenticate as IPA admin with Kerberos
+  ansible.builtin.command:
+    cmd: bash -c "echo '{{ ipa_admin_password }}' | kinit {{ ipa_admin_username }}"
+  register: kinit_result
+  changed_when: false
+  failed_when: false
+
+- name: Check if IPA client is configured
+  ansible.builtin.stat:
+    path: /etc/ipa/default.conf
+  register: ipa_config_stat
+
+- name: Check if host is already enrolled in IPA
+  ansible.builtin.command:
+    argv:
+      - ipa
+      - host-show
+      - "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+  register: ipa_host_check
+  changed_when: false
+  failed_when: ipa_host_check.rc != 0 and 'host not found' not in ipa_host_check.stderr and 'client is not configured' not in ipa_host_check.stderr
+
+- name: Delete host entry from IPA server if IPA client is not yet configured and hostname was previously registered
+  ansible.builtin.command:
+    argv:
+      - ipa
+      - host-del
+      - "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+  when:
+    - not ipa_config_stat.stat.exists
+    - ipa_host_check.rc == 0
+  register: ipa_host_del
+  changed_when: ipa_host_del.rc == 0
+  failed_when: ipa_host_del.rc != 0 and 'host not found' not in ipa_host_del.stderr
 
 - name: Gather package facts
   ansible.builtin.package_facts:

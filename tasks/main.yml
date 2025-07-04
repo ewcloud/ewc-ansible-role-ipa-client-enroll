@@ -1,4 +1,11 @@
 ---
+- name: Validate user inputs
+  ansible.builtin.assert:
+    that:
+      - password_allowed_ip_ranges is defined and password_allowed_ip_ranges is iterable and password_allowed_ip_ranges | length > 0
+    fail_msg: "Input validation failed. All variables in vars/main.yml must be non-empty strings, and password_allowed_ip_ranges must be a non-empty list. See README.md for details."
+    success_msg: "User input configuration is valid."
+
 - name: Verify RockyLinux or Ubuntu distribution
   ansible.builtin.assert:
     that:
@@ -71,6 +78,32 @@
   register: authselectout
   changed_when: authselectout.rc == 0
   notify: Restart sssd
+
+- name: Configure SSH to use SSSD
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?UsePAM"
+    line: "UsePAM yes"
+    state: present
+  notify: Restart sshd
+
+- name: Allow public key authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PubkeyAuthentication"
+    line: "PubkeyAuthentication yes"
+    state: present
+  notify: Restart sshd
+
+- name: Allow password authentication from internal networks
+  ansible.builtin.blockinfile:
+    path: /etc/ssh/sshd_config
+    block: |
+      Match Address {{ password_allowed_ip_ranges | join(',') }}
+          PasswordAuthentication yes
+    insertafter: EOF
+    state: present
+  notify: Restart sshd
 
 - name: Gather package facts
   ansible.builtin.package_facts:

@@ -3,6 +3,8 @@
   ansible.builtin.assert:
     that:
       - password_allowed_ip_ranges is defined and password_allowed_ip_ranges is iterable and password_allowed_ip_ranges | length > 0
+      - ipa_client_hostname is string and ipa_client_hostname is defined and ipa_client_hostname != ''
+      - ipa_domain is string and ipa_domain is defined and ipa_domain != ''
     fail_msg: "Input validation failed. All variables in vars/main.yml must be non-empty strings, and password_allowed_ip_ranges must be a non-empty list. See README.md for details."
     success_msg: "User input configuration is valid."
 
@@ -104,6 +106,29 @@
     insertafter: EOF
     state: present
   notify: Restart sshd
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+    use: systemd
+  register: hostname_set
+  changed_when: hostname_set.changed
+
+- name: Persist hostname to /etc/hostname
+  ansible.builtin.copy:
+    dest: /etc/hostname
+    content: "{{ ipa_client_hostname }}.{{ ipa_domain }}\n"
+    mode: '0644'
+  register: hostname_persist
+  changed_when: hostname_persist.changed
+
+- name: Add client to /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^{{ ansible_default_ipv4.address }}'
+    line: '{{ ansible_default_ipv4.address }} {{ ipa_client_hostname }}.{{ ipa_domain }}'
+    insertafter: BOF
+    state: present
 
 - name: Gather package facts
   ansible.builtin.package_facts:

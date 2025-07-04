@@ -1,0 +1,7 @@
+password_allowed_ip_ranges: ["10.0.0.0/24"]
+ipa_client_hostname: null
+ipa_domain: null
+ipa_admin_username: null
+ipa_admin_password: null
+ipa_server_ip: null
+ipa_server_hostname: ldap

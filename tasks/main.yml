@@ -1,0 +1,229 @@
+---
+- name: Validate user inputs
+  ansible.builtin.assert:
+    that:
+      - password_allowed_ip_ranges is defined and password_allowed_ip_ranges is iterable and password_allowed_ip_ranges | length > 0
+      - ipa_client_hostname is string and ipa_client_hostname is defined and ipa_client_hostname != ''
+      - ipa_domain is string and ipa_domain is defined and ipa_domain != ''
+      - ipa_admin_username is string and ipa_admin_username is defined and ipa_admin_username != ''
+      - ipa_admin_password is string and ipa_admin_password is defined and ipa_admin_password != ''
+      - ipa_server_ip is string and ipa_server_ip is defined and ipa_server_ip != ''
+      - ipa_server_hostname is string and ipa_server_hostname is defined and ipa_server_hostname != ''
+    fail_msg: "Input validation failed. All variables in vars/main.yml must be non-empty strings, and password_allowed_ip_ranges must be a non-empty list. See README.md for details."
+    success_msg: "User input configuration is valid."
+
+- name: Verify RockyLinux or Ubuntu distribution
+  ansible.builtin.assert:
+    that:
+      - ( ansible_facts['distribution'] == 'Rocky' and ansible_facts['distribution_major_version'] in ['8', '9']) or (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] in ['22', '24'])
+    fail_msg: "Supports RockyLinux and Ubuntu. Detected: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }}."
+    success_msg: "Running supported {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }} distribution."
+
+- name: Update apt packages (Ubuntu)
+  ansible.builtin.apt:
+    upgrade: false
+    update_cache: true
+    cache_valid_time: 86400
+  when: ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Update dnf packages (RockyLinux)
+  ansible.builtin.dnf:
+    update_cache: true
+  when: ansible_facts['distribution'] == 'Rocky'
+
+- name: Install required packages (Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - sssd
+      - sssd-tools
+      - libnss-sss
+      - libpam-sss
+      - oddjob
+      - oddjob-mkhomedir
+      - freeipa-client
+      - cracklib-runtime
+      - nfs-common
+      - chrony
+    state: present
+    update_cache: false
+  when: ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Install required packages (RockyLinux)
+  ansible.builtin.dnf:
+    name:
+      - sssd
+      - sssd-tools
+      - authselect
+      - oddjob
+      - oddjob-mkhomedir
+      - ipa-client
+      - NetworkManager
+    state: present
+    update_cache: false
+  when: ansible_facts['distribution'] == 'Rocky'
+
+- name: Check current authselect profile (RockyLinux)
+  ansible.builtin.command:
+    cmd: authselect current
+  register: authselect_current
+  changed_when: false
+  failed_when: false
+  when: ansible_facts['distribution'] == 'Rocky'
+
+- name: Setup authselect to use SSSD if configuration is missing (RockyLinux)
+  ansible.builtin.command:
+    argv:
+      - authselect
+      - select
+      - sssd
+      - with-mkhomedir
+      - --force
+  when:
+    - ansible_facts['distribution'] == 'Rocky'
+    - authselect_current.rc != 0 or 'sssd' not in authselect_current.stdout or 'with-mkhomedir' not in authselect_current.stdout
+  register: authselectout
+  changed_when: authselectout.rc == 0
+  notify: Restart sssd
+
+- name: Configure SSH to use SSSD
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?UsePAM"
+    line: "UsePAM yes"
+    state: present
+  notify: Restart sshd
+
+- name: Allow public key authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PubkeyAuthentication"
+    line: "PubkeyAuthentication yes"
+    state: present
+  notify: Restart sshd
+
+- name: Allow password authentication from internal networks
+  ansible.builtin.blockinfile:
+    path: /etc/ssh/sshd_config
+    block: |
+      Match Address {{ password_allowed_ip_ranges | join(',') }}
+          PasswordAuthentication yes
+    insertafter: EOF
+    state: present
+  notify: Restart sshd
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+    use: systemd
+  register: hostname_set
+  changed_when: hostname_set.changed
+
+- name: Persist hostname to /etc/hostname
+  ansible.builtin.copy:
+    dest: /etc/hostname
+    content: "{{ ipa_client_hostname }}.{{ ipa_domain }}\n"
+    mode: '0644'
+  register: hostname_persist
+  changed_when: hostname_persist.changed
+
+- name: Add client to /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^{{ ansible_default_ipv4.address }}'
+    line: '{{ ansible_default_ipv4.address }} {{ ipa_client_hostname }}.{{ ipa_domain }}'
+    insertafter: BOF
+    state: present
+
+- name: Authenticate as IPA admin with Kerberos
+  ansible.builtin.command:
+    cmd: bash -c "echo '{{ ipa_admin_password }}' | kinit {{ ipa_admin_username }}"
+  register: kinit_result
+  changed_when: false
+  failed_when: false
+
+- name: Check if IPA client is configured
+  ansible.builtin.stat:
+    path: /etc/ipa/default.conf
+  register: ipa_config_stat
+
+- name: Check if host is already enrolled in IPA
+  ansible.builtin.command:
+    argv:
+      - ipa
+      - host-show
+      - "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+  register: ipa_host_check
+  changed_when: false
+  failed_when: ipa_host_check.rc != 0 and 'host not found' not in ipa_host_check.stderr and 'client is not configured' not in ipa_host_check.stderr
+
+- name: Delete host entry from IPA server if IPA client is not yet configured and hostname was previously registered
+  ansible.builtin.command:
+    argv:
+      - ipa
+      - host-del
+      - "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+  when:
+    - not ipa_config_stat.stat.exists
+    - ipa_host_check.rc == 0
+  register: ipa_host_del
+  changed_when: ipa_host_del.rc == 0
+  failed_when: ipa_host_del.rc != 0 and 'host not found' not in ipa_host_del.stderr
+
+- name: Enroll in LDAP if host configuration missing
+  ansible.builtin.command:
+    argv:
+      - ipa-client-install
+      - --domain={{ ipa_domain }}
+      - --enable-dns-updates
+      - --mkhomedir
+      - --principal={{ ipa_admin_username }}
+      - --password={{ ipa_admin_password }}
+      - --force-join
+      - --unattended
+  when:
+    - not ipa_config_stat.stat.exists
+  changed_when: ipa_client_install.rc == 0
+  register: ipa_client_install
+
+- name: Enroll in DNS if host configuration is missing
+  community.general.ipa_host:
+    name: "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+    ip_address: "{{ ansible_default_ipv4.address }}"
+    state: present
+    ipa_host: "{{ ipa_server_hostname }}.{{ ipa_domain }}"
+    ipa_user: "{{ ipa_admin_username }}"
+    ipa_pass: "{{ ipa_admin_password }}"
+    validate_certs: false
+  when:
+    - not ipa_config_stat.stat.exists
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: List installed package versions (RockyLinux)
+  ansible.builtin.debug:
+    msg:
+      - "sssd: {{ ansible_facts.packages['sssd'][0].version }}-{{ ansible_facts.packages['sssd'][0].release }}"
+      - "sssd-tools: {{ ansible_facts.packages['sssd-tools'][0].version }}-{{ ansible_facts.packages['sssd-tools'][0].release }}"
+      - "authselect: {{ ansible_facts.packages['authselect'][0].version }}-{{ ansible_facts.packages['authselect'][0].release }}"
+      - "oddjob: {{ ansible_facts.packages['oddjob'][0].version }}-{{ ansible_facts.packages['oddjob'][0].release }}"
+      - "oddjob-mkhomedir: {{ ansible_facts.packages['oddjob-mkhomedir'][0].version }}-{{ ansible_facts.packages['oddjob-mkhomedir'][0].release }}"
+      - "ipa-client: {{ ansible_facts.packages['ipa-client'][0].version }}-{{ ansible_facts.packages['ipa-client'][0].release }}"
+      - "NetworkManager: {{ ansible_facts.packages['NetworkManager'][0].version }}-{{ ansible_facts.packages['NetworkManager'][0].release }}"
+  when: ansible_facts['distribution'] == 'Rocky'
+
+- name: List installed package versions (Ubuntu)
+  ansible.builtin.debug:
+    msg:
+      - "sssd: {{ ansible_facts.packages['sssd'][0].version }}"
+      - "sssd-tools: {{ ansible_facts.packages['sssd-tools'][0].version }}"
+      - "libnss-sss: {{ ansible_facts.packages['libnss-sss'][0].version }}"
+      - "libpam-sss: {{ ansible_facts.packages['libpam-sss'][0].version }}"
+      - "oddjob: {{ ansible_facts.packages['oddjob'][0].version }}"
+      - "oddjob-mkhomedir: {{ ansible_facts.packages['oddjob-mkhomedir'][0].version }}"
+      - "freeipa-client: {{ ansible_facts.packages['freeipa-client'][0].version }}"
+      - "cracklib-runtime: {{ ansible_facts.packages['cracklib-runtime'][0].version }}"
+      - "nfs-common: {{ ansible_facts.packages['nfs-common'][0].version }}"
+      - "chrony: {{ ansible_facts.packages['chrony'][0].version }}"
+  when: ansible_facts['distribution'] == 'Ubuntu'

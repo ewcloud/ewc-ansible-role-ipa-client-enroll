@@ -5,3 +5,77 @@
       - ( ansible_facts['distribution'] == 'Rocky' and ansible_facts['distribution_major_version'] in ['8', '9']) or (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] in ['22', '24'])
     fail_msg: "Supports RockyLinux and Ubuntu. Detected: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }}."
     success_msg: "Running supported {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }} distribution."
+
+- name: Update apt packages (Ubuntu)
+  ansible.builtin.apt:
+    upgrade: false
+    update_cache: true
+    cache_valid_time: 86400
+  when: ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Update dnf packages (RockyLinux)
+  ansible.builtin.dnf:
+    update_cache: true
+  when: ansible_facts['distribution'] == 'Rocky'
+
+- name: Install required packages (Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - sssd
+      - sssd-tools
+      - libnss-sss
+      - libpam-sss
+      - oddjob
+      - oddjob-mkhomedir
+      - freeipa-client
+      - cracklib-runtime
+      - nfs-common
+      - chrony
+    state: present
+    update_cache: false
+  when: ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Install required packages (RockyLinux)
+  ansible.builtin.dnf:
+    name:
+      - sssd
+      - sssd-tools
+      - authselect
+      - oddjob
+      - oddjob-mkhomedir
+      - ipa-client
+      - NetworkManager
+    state: present
+    update_cache: false
+  when: ansible_facts['distribution'] == 'Rocky'
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: List installed package versions (RockyLinux)
+  ansible.builtin.debug:
+    msg:
+      - "sssd: {{ ansible_facts.packages['sssd'][0].version }}-{{ ansible_facts.packages['sssd'][0].release }}"
+      - "sssd-tools: {{ ansible_facts.packages['sssd-tools'][0].version }}-{{ ansible_facts.packages['sssd-tools'][0].release }}"
+      - "authselect: {{ ansible_facts.packages['authselect'][0].version }}-{{ ansible_facts.packages['authselect'][0].release }}"
+      - "oddjob: {{ ansible_facts.packages['oddjob'][0].version }}-{{ ansible_facts.packages['oddjob'][0].release }}"
+      - "oddjob-mkhomedir: {{ ansible_facts.packages['oddjob-mkhomedir'][0].version }}-{{ ansible_facts.packages['oddjob-mkhomedir'][0].release }}"
+      - "ipa-client: {{ ansible_facts.packages['ipa-client'][0].version }}-{{ ansible_facts.packages['ipa-client'][0].release }}"
+      - "NetworkManager: {{ ansible_facts.packages['NetworkManager'][0].version }}-{{ ansible_facts.packages['NetworkManager'][0].release }}"
+  when: ansible_facts['distribution'] == 'Rocky'
+
+- name: List installed package versions (Ubuntu)
+  ansible.builtin.debug:
+    msg:
+      - "sssd: {{ ansible_facts.packages['sssd'][0].version }}"
+      - "sssd-tools: {{ ansible_facts.packages['sssd-tools'][0].version }}"
+      - "libnss-sss: {{ ansible_facts.packages['libnss-sss'][0].version }}"
+      - "libpam-sss: {{ ansible_facts.packages['libpam-sss'][0].version }}"
+      - "oddjob: {{ ansible_facts.packages['oddjob'][0].version }}"
+      - "oddjob-mkhomedir: {{ ansible_facts.packages['oddjob-mkhomedir'][0].version }}"
+      - "freeipa-client: {{ ansible_facts.packages['freeipa-client'][0].version }}"
+      - "cracklib-runtime: {{ ansible_facts.packages['cracklib-runtime'][0].version }}"
+      - "nfs-common: {{ ansible_facts.packages['nfs-common'][0].version }}"
+      - "chrony: {{ ansible_facts.packages['chrony'][0].version }}"
+  when: ansible_facts['distribution'] == 'Ubuntu'

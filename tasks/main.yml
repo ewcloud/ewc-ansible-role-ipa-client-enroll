@@ -3,13 +3,17 @@
   ansible.builtin.assert:
     that:
       - password_allowed_ip_ranges is defined and password_allowed_ip_ranges is iterable and password_allowed_ip_ranges | length > 0
+      - password_allowed_ip_ranges | map('ansible.utils.ipaddr') | list | select | length == password_allowed_ip_ranges | length
+      - password_allowed_ip_ranges | map('regex_search', '^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?:/(24|25|26|27|28|29|30|31|32))?)$') | list | select | length == password_allowed_ip_ranges | length
       - ipa_client_hostname is string and ipa_client_hostname is defined and ipa_client_hostname != ''
       - ipa_domain is string and ipa_domain is defined and ipa_domain != ''
       - ipa_admin_username is string and ipa_admin_username is defined and ipa_admin_username != ''
       - ipa_admin_password is string and ipa_admin_password is defined and ipa_admin_password != ''
       - ipa_server_ip is string and ipa_server_ip is defined and ipa_server_ip != ''
+      - ipa_server_ip | ansible.utils.ipaddr
+      - ipa_server_ip | regex_search('^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$')
       - ipa_server_hostname is string and ipa_server_hostname is defined and ipa_server_hostname != ''
-    fail_msg: "Input validation failed. All variables in vars/main.yml must be non-empty strings, and password_allowed_ip_ranges must be a non-empty list. See README.md for details."
+    fail_msg: "Input validation failed. See README.md for information on required inputs and their format."
     success_msg: "User input configuration is valid."
 
 - name: Verify RockyLinux or Ubuntu distribution

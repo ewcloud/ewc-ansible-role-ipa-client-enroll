@@ -76,13 +76,13 @@ ansible-playbook -i inventory.yml playbook.yml
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
-| password_allowed_ip_ranges | IP ranges (in CIDR format) to be allowed for password access in SSHD configuration | `list(string)` | `["10.0.0.0/24"]` | yes |
+| password_allowed_ip_ranges | IP ranges (in CIDR format) to be allowed for password access in SSHD configuration. Example: `['10.0.0.0/24', '127.0.0.1']` | `list(string)` | n/a | yes |
 | ipa_client_hostname | IPA client host name. Example: `<openstack instance name>` | `string`| n/a | yes |
 | ipa_domain |The IPA domain name. Example: `<memberstate>-<organization>-<projectname>.ewc` | `string` | n/a | yes |
 | ipa_admin_password | The IPA Directory Manager/Admin password (at least 8 characters long) | `string` | n/a | yes |
 | ipa_admin_username | Username of administrator account to replace the default IPA admin | `string` | n/a | yes |
-| ipa_server_ip | IPA server IPV4 address. Example: `10.0.0.2` | `string`| n/a | yes |
-| ipa_server_hostname | IPA server host name. | `string`| `ldap` | yes |
+| ipa_server_ip | IPA server IPV4 address. Example: `10.0.0.53` | `string`| n/a | yes |
+| ipa_server_hostname | IPA server host name. Example: `ldap` | `string`| n/a | yes |
 
 
 ## Final Environment

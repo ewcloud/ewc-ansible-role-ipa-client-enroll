@@ -202,6 +202,8 @@
   when:
     - not ipa_config_stat.stat.exists
   no_log: true
+  retries: 1
+  delay: 3
 
 - name: Gather package facts
   ansible.builtin.package_facts:

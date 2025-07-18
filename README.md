@@ -86,11 +86,6 @@ ansible-playbook -i inventory.yml playbook.yml
 
 
 ## Final Environment
->⚠️ Versions listed here refer only to those available for RockyLinux 8
-or Ubuntu 22.04 packages as of July 4th, 2025. As new security 
-patches/features are published by their authors, and newer RockyLinux or
-Ubuntu image versions are introduced into the EWC, the effective versions
-installed in your environment might be higher.
 
 ### RockyLinux 8 Environment
 

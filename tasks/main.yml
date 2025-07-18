@@ -32,35 +32,62 @@
     update_cache: true
   when: ansible_facts['distribution'] == 'Rocky'
 
+- name: Pin package versions prior to installation
+  ansible.builtin.set_fact:
+    package_versions:
+      rockylinux:
+        sssd: "sssd-2.9.4-5.el8_10.2"
+        sssd-tools: "sssd-tools-2.9.4-5.el8_10.2"
+        authselect: "authselect-1.2.6-2.el8"
+        oddjob: "oddjob-0.34.7-3.el8"
+        oddjob-mkhomedir: "oddjob-mkhomedir-0.34.7-3.el8"
+        ipa-client: "ipa-client-4.9.13-18.module+el8.10.0+1999+6893b0f2"
+        NetworkManager: "NetworkManager-1.40.16-13.el8_9"
+      ubuntu:
+        sssd: "sssd=2.6.3-1ubuntu3.5"
+        sssd-tools: "sssd-tools=2.6.3-1ubuntu3.5"
+        libnss-sss: "libnss-sss=2.6.3-1ubuntu3.5"
+        libpam-sss: "libpam-sss=2.6.3-1ubuntu3.5"
+        oddjob: "oddjob=0.34.6-1"
+        oddjob-mkhomedir: "oddjob-mkhomedir=0.34.6-1"
+        freeipa-client: "freeipa-client=4.9.8-1"
+        cracklib-runtime: "cracklib-runtime=2.9.6-3.4build4"
+        nfs-common: "nfs-common=1:2.6.1-1ubuntu1.2"
+        chrony: "chrony=4.2-2ubuntu2"
+
 - name: Install required packages (Ubuntu)
   ansible.builtin.apt:
     name:
-      - sssd
-      - sssd-tools
-      - libnss-sss
-      - libpam-sss
-      - oddjob
-      - oddjob-mkhomedir
-      - freeipa-client
-      - cracklib-runtime
-      - nfs-common
-      - chrony
+      - "{{ item }}"
     state: present
-    update_cache: false
+    allow_downgrade: true
+  loop:
+    - "{{ package_versions['ubuntu']['sssd'] }}"
+    - "{{ package_versions['ubuntu']['sssd-tools'] }}"
+    - "{{ package_versions['ubuntu']['libnss-sss'] }}"
+    - "{{ package_versions['ubuntu']['libpam-sss'] }}"
+    - "{{ package_versions['ubuntu']['oddjob'] }}"
+    - "{{ package_versions['ubuntu']['oddjob-mkhomedir'] }}"
+    - "{{ package_versions['ubuntu']['freeipa-client'] }}"
+    - "{{ package_versions['ubuntu']['cracklib-runtime'] }}"
+    - "{{ package_versions['ubuntu']['nfs-common'] }}"
+    - "{{ package_versions['ubuntu']['chrony'] }}"
   when: ansible_facts['distribution'] == 'Ubuntu'
 
 - name: Install required packages (RockyLinux)
   ansible.builtin.dnf:
     name:
-      - sssd
-      - sssd-tools
-      - authselect
-      - oddjob
-      - oddjob-mkhomedir
-      - ipa-client
-      - NetworkManager
+      - "{{ item }}"
     state: present
-    update_cache: false
+    allow_downgrade: true
+  loop:
+    - "{{ package_versions['rockylinux']['sssd'] }}"
+    - "{{ package_versions['rockylinux']['sssd-tools'] }}"
+    - "{{ package_versions['rockylinux']['authselect'] }}"
+    - "{{ package_versions['rockylinux']['oddjob'] }}"
+    - "{{ package_versions['rockylinux']['oddjob-mkhomedir'] }}"
+    - "{{ package_versions['rockylinux']['ipa-client'] }}"
+    - "{{ package_versions['rockylinux']['NetworkManager'] }}"
   when: ansible_facts['distribution'] == 'Rocky'
 
 - name: Check current authselect profile (RockyLinux)

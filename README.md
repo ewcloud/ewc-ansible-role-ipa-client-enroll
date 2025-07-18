@@ -25,7 +25,8 @@ example structure below, with `ewc-ansible-role-ipa-client` being a clone of thi
 repository:
 ```
 .
-├── ewc-ansible-role-ipa-client
+├── roles
+│   └── ewc-ansible-role-ipa-client
 ├── inventory.yml
 └── playbook.yml
 ```
@@ -53,7 +54,7 @@ Then, proceed to create an Ansible Playbook file to load your customizations:
 ```yaml
 # playbook.yml
 ---
-- name: Deploy IPA Client on RockyLinux or Ubuntu
+- name: Deploy IPA Client on RockyLinux 8 or Ubuntu 22
   hosts: ipa_client
   become: true
   become_user: root
@@ -91,38 +92,38 @@ patches/features are published by their authors, and newer RockyLinux or
 Ubuntu image versions are introduced into the EWC, the effective versions
 installed in your environment might be higher.
 
-### RockyLinux Environment
+### RockyLinux 8 Environment
 
 Applying this template will trigger the installation of the following 
 open-source packages onto your desired target RockyLinux host:
 
 | Name | Version | License | Package Info |
 |------|---------|---------|--------------|
-| sssd | >= 2.9.4-5.el8_10.2 | PLv3+ | https://github.com/SSSD/sssd |
-| sssd-tools | >= 2.9.4-5.el8_10.2 | GPLv3+ | https://github.com/SSSD/sssd |
-| authselect | >= 1.2.6-2.el8 | GPLv3+ | https://github.com/authselect/authselect |
-| oddjob | >= 0.34.7-3.el8 | BSD | https://pagure.io/oddjob |
-| oddjob-mkhomedir | >= 0.34.7-3.el8"  | BSD | https://pagure.io/oddjob |
-| ipa-client | >= 4.9.13-18.module+el8.10 | GPLv3+ | http://www.freeipa.org |
-| NetworkManager | >= 1.40.16-19.el8_10 | GPLv2+ | https://networkmanager.dev/ |
+| sssd | 2.9 | PLv3+ | https://github.com/SSSD/sssd |
+| sssd-tools | 2.9 | GPLv3+ | https://github.com/SSSD/sssd |
+| authselect | 1.2 | GPLv3+ | https://github.com/authselect/authselect |
+| oddjob | 0.34 | BSD | https://pagure.io/oddjob |
+| oddjob-mkhomedir | 0.34  | BSD | https://pagure.io/oddjob |
+| ipa-client | 4.9 | GPLv3+ | http://www.freeipa.org |
+| NetworkManager | 1.40 | GPLv2+ | https://networkmanager.dev/ |
 
-### Ubuntu Environment
+### Ubuntu 22 Environment
 
 Likewise, on your desired target Ubuntu host, the template will trigger 
 installation of the following open-source packages:
 
 | Name | Version | License | Package Info |
 |------|---------|---------|--------------|
-| sssd | >= 2.6.3-1ubuntu3.5 | GPLv3+ | https://github.com/SSSD/sssd |
-| sssd-tools | >= 2.6.3-1ubuntu3.5 | GPLv3+ | https://github.com/SSSD/sssd |
-| libnss-sss  | >= 2.6.3-1ubuntu3.5 | GPLv3+ | https://github.com/SSSD/sssd |
-| libpam-sss | >= 2.6.3-1ubuntu3.5 |  GPLv3+ | https://github.com/SSSD/sssd |
-| oddjob | >= 0.34.6-1 | - | https://pagure.io/oddjob |
-| oddjob-mkhomedir | >= 0.34.6-1 |- | https://pagure.io/oddjob |
-| ipa-client | >= 4.9.8-1 | GPLv3+ | http://www.freeipa.org |
-| cracklib-runtime | >= 2.9.6-3.4 | - | https://github.com/cracklib/cracklib |
-| nfs-common | 2.6.1-1ubuntu1.2 | - | https://linux-nfs.org |
-| chrony | 4.2-2ubuntu2 | GPLv2+ | https://chrony.tuxfamily.org |
+| sssd | 2.6 | GPLv3+ | https://github.com/SSSD/sssd |
+| sssd-tools | 2.6 | GPLv3+ | https://github.com/SSSD/sssd |
+| libnss-sss  | 2.6 | GPLv3+ | https://github.com/SSSD/sssd |
+| libpam-sss | 2.6 |  GPLv3+ | https://github.com/SSSD/sssd |
+| oddjob | 0.34 | BSD | https://pagure.io/oddjob |
+| oddjob-mkhomedir | 0.34 | BSD | https://pagure.io/oddjob |
+| ipa-client | 4.9 | GPLv3+ | http://www.freeipa.org |
+| cracklib-runtime | 2.9 | - | https://github.com/cracklib/cracklib |
+| nfs-common | 2.6 | - | https://linux-nfs.org |
+| chrony | 4.2 | GPLv2+ | https://chrony.tuxfamily.org |
 
 
 ## Changelog

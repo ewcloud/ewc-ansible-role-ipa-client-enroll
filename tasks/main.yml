@@ -144,6 +144,7 @@
   register: kinit_result
   changed_when: false
   failed_when: false
+  no_log: true
 
 - name: Check if IPA client is configured
   ansible.builtin.stat:
@@ -188,6 +189,7 @@
     - not ipa_config_stat.stat.exists
   changed_when: ipa_client_install.rc == 0
   register: ipa_client_install
+  no_log: true
 
 - name: Enroll in DNS if host configuration is missing
   community.general.ipa_host:
@@ -200,6 +202,7 @@
     validate_certs: false
   when:
     - not ipa_config_stat.stat.exists
+  no_log: true
 
 - name: Gather package facts
   ansible.builtin.package_facts:

@@ -13,7 +13,7 @@
     fail_msg: "Input validation failed. See README.md for information on required inputs and their format."
     success_msg: "User input configuration is valid."
 
-- name: Verify RockyLinux or Ubuntu distribution
+- name: Verify Linux distribution
   ansible.builtin.assert:
     that:
       - ( ansible_facts['distribution'] == 'Rocky' and ansible_facts['distribution_major_version'] in ['8', '9']) or (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] in ['22', '24'])
@@ -158,18 +158,20 @@
   changed_when: false
   failed_when: ipa_host_check.rc != 0 and 'host not found' not in ipa_host_check.stderr and 'client is not configured' not in ipa_host_check.stderr
 
-- name: Delete host entry from IPA server if IPA client is not yet configured and hostname was previously registered
-  ansible.builtin.command:
-    argv:
-      - ipa
-      - host-del
-      - "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+- name: Delete dangling records from IPA server if host previously registered
+  community.general.ipa_host:
+    fqdn: "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+    ip_address: "{{ ansible_default_ipv4.address }}"
+    state: absent
+    update_dns: true
+    ipa_host: "{{ ipa_server_hostname }}"
+    ipa_user: "{{ ipa_admin_username }}"
+    ipa_pass: "{{ ipa_admin_password }}"
+    validate_certs: false
+  register: ipa_host_del
   when:
     - not ipa_config_stat.stat.exists
     - ipa_host_check.rc == 0
-  register: ipa_host_del
-  changed_when: ipa_host_del.rc == 0
-  failed_when: ipa_host_del.rc != 0 and 'host not found' not in ipa_host_del.stderr
 
 - name: Enroll in LDAP if host configuration missing
   ansible.builtin.command:
@@ -190,7 +192,7 @@
 
 - name: Enroll in DNS if host configuration is missing
   community.general.ipa_host:
-    name: "{{ ipa_client_hostname }}.{{ ipa_domain }}"
+    fqdn: "{{ ipa_client_hostname }}.{{ ipa_domain }}"
     ip_address: "{{ ansible_default_ipv4.address }}"
     state: present
     ipa_host: "{{ ipa_server_hostname }}.{{ ipa_domain }}"

@@ -81,7 +81,6 @@ ansible-playbook -i inventory.yml playbook.yml
 | ipa_domain |The IPA domain name. Example: `<memberstate>-<organization>-<projectname>.ewc` | `string` | n/a | yes |
 | ipa_admin_password | The IPA Directory Manager/Admin password (at least 8 characters long) | `string` | n/a | yes |
 | ipa_admin_username | Username of administrator account to replace the default IPA admin | `string` | n/a | yes |
-| ipa_server_ip | IPA server IPV4 address. Example: `10.0.0.53` | `string`| n/a | yes |
 | ipa_server_hostname | IPA server host name. Example: `ldap` | `string`| n/a | yes |
 
 

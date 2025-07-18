@@ -9,9 +9,6 @@
       - ipa_domain is string and ipa_domain is defined and ipa_domain != ''
       - ipa_admin_username is string and ipa_admin_username is defined and ipa_admin_username != ''
       - ipa_admin_password is string and ipa_admin_password is defined and ipa_admin_password != ''
-      - ipa_server_ip is string and ipa_server_ip is defined and ipa_server_ip != ''
-      - ipa_server_ip | ansible.utils.ipaddr
-      - ipa_server_ip | regex_search('^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$')
       - ipa_server_hostname is string and ipa_server_hostname is defined and ipa_server_hostname != ''
     fail_msg: "Input validation failed. See README.md for information on required inputs and their format."
     success_msg: "User input configuration is valid."

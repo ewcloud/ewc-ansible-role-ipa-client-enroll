@@ -13,10 +13,18 @@ hosts or public addresses
 managed LDAP users
 
 ## Copyright and License
->💡 No dependencies are distributed as part of this repository.
+Copyright © EUMETSAT 2025.
 
-See the [LICENSE](./LICENSE) file for licensing information as it pertains to
-files in this repository.
+The provided code and instructions are licensed under the MIT license. 
+They are intended to automate the setup of an environment that includes 
+third-party software components.
+The usage and distribution terms of the resulting environment are 
+subject to the individual licenses of those third-party libraries.
+
+Users are responsible for reviewing and complying with the licenses of
+all third-party components included in the environment.
+
+Contact [EUMETSAT](http://www.eumetsat.int) for details on the usage and distribution terms.
 
 ## Usage
 
@@ -85,39 +93,37 @@ ansible-playbook -i inventory.yml playbook.yml
 | ipa_server_hostname | IPA server host name. Example: `ldap` | `string`| n/a | yes |
 
 
-## Final Environment
+## SW Bill of Materials (SBoM)
 
-### RockyLinux 8 Environment
+Third-party components used in the resulting environment.
 
-Applying this template will trigger the installation of the following 
-open-source packages onto your desired target RockyLinux host:
+### RockyLinux 8.10 Environment
+The following components will be included in the resulting environment:
 
-| Name | Version | License | Package Info |
-|------|---------|---------|--------------|
+| Component | Version | License | Home URL |
+|------|---------|---------|--------|
 | sssd | 2.9 | PLv3+ | https://github.com/SSSD/sssd |
 | sssd-tools | 2.9 | GPLv3+ | https://github.com/SSSD/sssd |
 | authselect | 1.2 | GPLv3+ | https://github.com/authselect/authselect |
 | oddjob | 0.34 | BSD | https://pagure.io/oddjob |
-| oddjob-mkhomedir | 0.34  | BSD | https://pagure.io/oddjob |
-| ipa-client | 4.9 | GPLv3+ | http://www.freeipa.org |
-| NetworkManager | 1.40 | GPLv2+ | https://networkmanager.dev/ |
-
-### Ubuntu 22 Environment
-
-Likewise, on your desired target Ubuntu host, the template will trigger 
-installation of the following open-source packages:
-
-| Name | Version | License | Package Info |
-|------|---------|---------|--------------|
-| sssd | 2.6 | GPLv3+ | https://github.com/SSSD/sssd |
-| sssd-tools | 2.6 | GPLv3+ | https://github.com/SSSD/sssd |
-| libnss-sss  | 2.6 | GPLv3+ | https://github.com/SSSD/sssd |
-| libpam-sss | 2.6 |  GPLv3+ | https://github.com/SSSD/sssd |
-| oddjob | 0.34 | BSD | https://pagure.io/oddjob |
 | oddjob-mkhomedir | 0.34 | BSD | https://pagure.io/oddjob |
 | ipa-client | 4.9 | GPLv3+ | http://www.freeipa.org |
-| cracklib-runtime | 2.9 | - | https://github.com/cracklib/cracklib |
-| nfs-common | 2.6 | - | https://linux-nfs.org |
+| NetworkManager | 1.40 | GPLv2+ | https://networkmanager.dev |
+
+### Ubuntu 22.04 Environment
+The following components will be included in the resulting environment:
+
+| Component | Version | License | Home URL |
+|------|---------|---------|--------|
+| sssd | 2.6 | GPLv3+ | https://github.com/SSSD/sssd |
+| sssd-tools | 2.6 | GPLv3+  | https://github.com/SSSD/sssd |
+| libnss-sss  | 2.6 | GPLv3+  | https://github.com/SSSD/sssd |
+| libpam-sss | 2.6 |  GPLv3+  | https://github.com/SSSD/sssd |
+| oddjob | 0.34 | BSD  | https://pagure.io/oddjob |
+| oddjob-mkhomedir | 0.34 | BSD | https://pagure.io/oddjob |
+| ipa-client | 4.9 | GPLv3+ | http://www.freeipa.org |
+| cracklib-runtime | 2.9 | LGPL-2.1  | https://github.com/cracklib/cracklib |
+| nfs-common | 2.6 | GPL-2 | https://linux-nfs.org |
 | chrony | 4.2 | GPLv2+ | https://chrony.tuxfamily.org |
 
 

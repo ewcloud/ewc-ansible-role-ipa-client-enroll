@@ -42,7 +42,7 @@
         oddjob: "oddjob-0.34.7-3.el8"
         oddjob-mkhomedir: "oddjob-mkhomedir-0.34.7-3.el8"
         ipa-client: "ipa-client-4.9.13-18.module+el8.10.0+1999+6893b0f2"
-        NetworkManager: "NetworkManager-1.40.16-13.el8_9"
+        NetworkManager: "NetworkManager-1.40.16-19.el8_10"
       ubuntu:
         sssd: "sssd=2.6.3-1ubuntu3.5"
         sssd-tools: "sssd-tools=2.6.3-1ubuntu3.5"

@@ -86,11 +86,11 @@ ansible-playbook -i inventory.yml playbook.yml
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
 | password_allowed_ip_ranges | IP ranges (in CIDR format) to be allowed for password access in SSHD configuration. Example: `['10.0.0.0/24', '127.0.0.1']` | `list(string)` | n/a | yes |
-| ipa_client_hostname | IPA client host name. Example: `<openstack instance name>` | `string`| n/a | yes |
-| ipa_domain |The IPA domain name. Example: `<memberstate>-<organization>-<projectname>.ewc` | `string` | n/a | yes |
-| ipa_admin_password | The IPA Directory Manager/Admin password (at least 8 characters long) | `string` | n/a | yes |
-| ipa_admin_username | Username of administrator account to replace the default IPA admin | `string` | n/a | yes |
-| ipa_server_hostname | IPA server host name. Example: `ldap` | `string`| n/a | yes |
+| ipa_client_hostname | hostname of the target vm where the IPA client will be installed. Example: `ipa-client-1` | `string`| n/a | yes |
+| ipa_domain | domain name managed by the existing IPA server. Example: `<memberstate>-<organization>-<projectname>.ewc` | `string` | n/a | yes |
+| ipa_admin_password | password of the IPA server administrator account | `string` | n/a | yes |
+| ipa_admin_username | username of the IPA server administrator account | `string` | n/a | yes |
+| ipa_server_hostname | IPA server hostname. Example: `ipa-server-1` | `string`| n/a | yes |
 
 
 ## SW Bill of Materials (SBoM)

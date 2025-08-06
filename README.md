@@ -15,7 +15,7 @@ managed LDAP users
 ## Copyright and License
 Copyright © EUMETSAT 2025.
 
-The provided code and instructions are licensed under the MIT license. 
+The provided code and instructions are licensed under the [MIT license](./LICENSE).
 They are intended to automate the setup of an environment that includes 
 third-party software components.
 The usage and distribution terms of the resulting environment are 

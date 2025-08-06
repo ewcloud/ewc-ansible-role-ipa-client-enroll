@@ -16,9 +16,9 @@
 - name: Verify Linux distribution
   ansible.builtin.assert:
     that:
-      - ( ansible_facts['distribution'] == 'Rocky' and ansible_facts['distribution_major_version'] in ['8']) or (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] in ['22'])
-    fail_msg: "Supports RockyLinux 8 and Ubuntu 22. Detected: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }}."
-    success_msg: "Running supported {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }} distribution."
+      - ( ansible_facts['distribution'] == 'Rocky' and ansible_facts['distribution_version'] == '8.10') or (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_version'] == '22.04')
+    fail_msg: "Supports RockyLinux 8.10 and Ubuntu 22.04. Detected: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+    success_msg: "Running supported {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }} distribution."
 
 - name: Update apt packages (Ubuntu)
   ansible.builtin.apt:

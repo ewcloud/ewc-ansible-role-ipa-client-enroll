@@ -5,7 +5,7 @@ This repository contains a configuration template
 to customize your environment in the
 [European Weather Cloud (EWC)](https://europeanweather.cloud/).
 The template is designed to:
-* Configure a pre-existing RockyLinux or Ubuntu virtual machine to
+* Configure a pre-existing RockyLinux 8.10 or Ubuntu 22.04 virtual machine to
 connect to an IPA server running on the same subnet, such that it:
   * Is able to leverage DNS resolution and discover other private 
 hosts or public addresses
@@ -62,7 +62,7 @@ Then, proceed to create an Ansible Playbook file to load your customizations:
 ```yaml
 # playbook.yml
 ---
-- name: Deploy IPA Client on RockyLinux 8 or Ubuntu 22
+- name: Deploy IPA Client on RockyLinux or Ubuntu
   hosts: ipa_client
   become: true
   become_user: root
@@ -85,11 +85,11 @@ ansible-playbook -i inventory.yml playbook.yml
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
-| password_allowed_ip_ranges | IP ranges (in CIDR format) to be allowed for password access in SSHD configuration. Example: `['10.0.0.0/24', '127.0.0.1']` | `list(string)` | n/a | yes |
+| password_allowed_ip_ranges | IP ranges (in CIDR format) to be allowed for password access in SSHD configuration. When in doubt, add only IP addresses of instances you know and trust. Example: `['10.0.0.0/24', '127.0.0.1']` | `list(string)` | n/a | yes |
 | ipa_client_hostname | hostname of the target vm where the IPA client will be installed. Example: `ipa-client-1` | `string`| n/a | yes |
-| ipa_domain | domain name managed by the existing IPA server. Example: `<memberstate>-<organization>-<projectname>.ewc` | `string` | n/a | yes |
-| ipa_admin_password | password of the IPA server administrator account | `string` | n/a | yes |
-| ipa_admin_username | username of the IPA server administrator account | `string` | n/a | yes |
+| ipa_domain | domain name managed by the existing IPA server. Example: `eumetsat.sandbox.ewc` | `string` | n/a | yes |
+| ipa_admin_password | password of the IPA server administrator account. Example: `ipaadmin` | `string` | n/a | yes |
+| ipa_admin_username | username of the IPA server administrator account. Example: `my-secret-password` | `string` | n/a | yes |
 | ipa_server_hostname | IPA server hostname. Example: `ipa-server-1` | `string`| n/a | yes |
 
 

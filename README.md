@@ -85,13 +85,12 @@ ansible-playbook -i inventory.yml playbook.yml
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
-| password_allowed_ip_ranges | IP ranges (in CIDR format) to be allowed for password access in SSHD configuration. When in doubt, add only IP addresses of instances you know and trust. Example: `['10.0.0.0/24', '127.0.0.1']` | `list(string)` | n/a | yes |
 | ipa_client_hostname | hostname of the target vm where the IPA client will be installed. Example: `ipa-client-1` | `string`| n/a | yes |
 | ipa_domain | domain name managed by the existing IPA server. Example: `eumetsat.sandbox.ewc` | `string` | n/a | yes |
 | ipa_admin_password | password of the IPA server administrator account. Example: `ipaadmin` | `string` | n/a | yes |
 | ipa_admin_username | username of the IPA server administrator account. Example: `my-secret-password` | `string` | n/a | yes |
 | ipa_server_hostname | IPA server hostname. Example: `ipa-server-1` | `string`| n/a | yes |
-
+| password_allowed_ip_ranges | IP addresses or IP ranges (in CIDR format) to be allowed for password access in SSHD configuration. When in doubt, add only IP addresses you know and trust. Example: `['10.0.0.0/24', '127.0.0.1']` | `list(string)` | `['10.0.0.0/8','172.16.0.0/12','192.168.0.0/16']` | no |
 
 ## SW Bill of Materials (SBoM)
 

@@ -2,7 +2,7 @@
 - name: Validate user inputs
   ansible.builtin.assert:
     that:
-      - (password_allowed_ip_ranges is not defined or password_allowed_ip_ranges == '') or (password_allowed_ip_ranges is defined and password_allowed_ip_ranges is iterable and password_allowed_ip_ranges | length > 0 and (password_allowed_ip_ranges | map('ansible.utils.ipaddr') | list | select | length == password_allowed_ip_ranges | length))
+      - (password_allowed_ip_ranges is not defined or password_allowed_ip_ranges == '') or (password_allowed_ip_ranges is defined and password_allowed_ip_ranges is iterable and password_allowed_ip_ranges | length > 0 and (password_allowed_ip_ranges | map('ansible.utils.ipaddr') | select('defined') | list | length == password_allowed_ip_ranges | length))
       - ipa_client_hostname is string and ipa_client_hostname is defined and ipa_client_hostname != ''
       - ipa_domain is string and ipa_domain is defined and ipa_domain != ''
       - ipa_admin_username is string and ipa_admin_username is defined and ipa_admin_username != ''

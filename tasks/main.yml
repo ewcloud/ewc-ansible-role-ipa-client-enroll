@@ -2,7 +2,7 @@
 - name: Validate user inputs
   ansible.builtin.assert:
     that:
-      - (password_allowed_ip_ranges is not defined or password_allowed_ip_ranges == '') or (password_allowed_ip_ranges is defined and password_allowed_ip_ranges is iterable and password_allowed_ip_ranges | length > 0 and (password_allowed_ip_ranges | map('ansible.utils.ipaddr') | list | select | length == password_allowed_ip_ranges | length))
+      - (password_allowed_ip_ranges is not defined or password_allowed_ip_ranges == '') or (password_allowed_ip_ranges is defined and password_allowed_ip_ranges is iterable and password_allowed_ip_ranges | length > 0 and (password_allowed_ip_ranges | map('ansible.utils.ipaddr') | select('defined') | list | length == password_allowed_ip_ranges | length))
       - ipa_client_hostname is string and ipa_client_hostname is defined and ipa_client_hostname != ''
       - ipa_domain is string and ipa_domain is defined and ipa_domain != ''
       - ipa_admin_username is string and ipa_admin_username is defined and ipa_admin_username != ''
@@ -46,10 +46,10 @@
         ipa-client: "ipa-client-4.9.13-18.module+el8.10.0+1999+6893b0f2"
         NetworkManager: "NetworkManager-1.40.16-19.el8_10"
       ubuntu:
-        sssd: "sssd=2.6.3-1ubuntu3.5"
-        sssd-tools: "sssd-tools=2.6.3-1ubuntu3.5"
-        libnss-sss: "libnss-sss=2.6.3-1ubuntu3.5"
-        libpam-sss: "libpam-sss=2.6.3-1ubuntu3.5"
+        sssd: "sssd=2.6.3-1ubuntu3.6"
+        sssd-tools: "sssd-tools=2.6.3-1ubuntu3.6"
+        libnss-sss: "libnss-sss=2.6.3-1ubuntu3.6"
+        libpam-sss: "libpam-sss=2.6.3-1ubuntu3.6"
         oddjob: "oddjob=0.34.6-1"
         oddjob-mkhomedir: "oddjob-mkhomedir=0.34.6-1"
         freeipa-client: "freeipa-client=4.9.8-1"

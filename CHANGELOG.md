@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/ewcloud/ewc-ansible-role-ipa-client-enroll/compare/1.0.0...1.1.0) (2025-09-17)
+
+
+### Features
+
+* Support latest Ubuntu 22.04 image ([#2](https://github.com/ewcloud/ewc-ansible-role-ipa-client-enroll/issues/2)) ([a33226f](https://github.com/ewcloud/ewc-ansible-role-ipa-client-enroll/commit/a33226f166e47687244b55c695204cf6663bde34))
+
 # 1.0.0 (2025-09-04)
 
 

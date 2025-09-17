@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/ewcloud/ewc-ansible-role-ipa-client-enroll/compare/1.1.0...1.1.1) (2025-09-17)
+
+
+### Bug Fixes
+
+* Cleanup PasswordAuthentication whitelisting as is bypassed by PAM-based password auth (keyboard-interactive) ([#3](https://github.com/ewcloud/ewc-ansible-role-ipa-client-enroll/issues/3)) ([663cfac](https://github.com/ewcloud/ewc-ansible-role-ipa-client-enroll/commit/663cfac739ea98899874cda32861e3b54c71d787))
+
 # [1.1.0](https://github.com/ewcloud/ewc-ansible-role-ipa-client-enroll/compare/1.0.0...1.1.0) (2025-09-17)
 
 

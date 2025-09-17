@@ -2,7 +2,6 @@
 - name: Validate user inputs
   ansible.builtin.assert:
     that:
-      - (password_allowed_ip_ranges is not defined or password_allowed_ip_ranges == '') or (password_allowed_ip_ranges is defined and password_allowed_ip_ranges is iterable and password_allowed_ip_ranges | length > 0 and (password_allowed_ip_ranges | map('ansible.utils.ipaddr') | select('defined') | list | length == password_allowed_ip_ranges | length))
       - ipa_client_hostname is string and ipa_client_hostname is defined and ipa_client_hostname != ''
       - ipa_domain is string and ipa_domain is defined and ipa_domain != ''
       - ipa_admin_username is string and ipa_admin_username is defined and ipa_admin_username != ''
@@ -17,10 +16,6 @@
       - ( ansible_facts['distribution'] == 'Rocky' and ansible_facts['distribution_version'] == '8.10') or (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_version'] == '22.04')
     fail_msg: "Supports RockyLinux 8.10 and Ubuntu 22.04. Detected: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
     success_msg: "Running supported {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }} distribution."
-
-- name: Set fallback value for whitelisted IP ranges (password login allowed) if no user-defined value set
-  ansible.builtin.set_fact:
-    password_allowed_ip_ranges_fact: "{% if password_allowed_ip_ranges is not defined or password_allowed_ip_ranges == '' %}['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']{% else %}{{ password_allowed_ip_ranges }}{% endif %}"
 
 - name: Update apt packages (Ubuntu)
   ansible.builtin.apt:
@@ -128,16 +123,6 @@
     path: /etc/ssh/sshd_config
     regexp: "^#?PubkeyAuthentication"
     line: "PubkeyAuthentication yes"
-    state: present
-  notify: Restart sshd
-
-- name: Allow password authentication from internal networks
-  ansible.builtin.blockinfile:
-    path: /etc/ssh/sshd_config
-    block: |
-      Match Address {{ password_allowed_ip_ranges_fact | join(',') }}
-          PasswordAuthentication yes
-    insertafter: EOF
     state: present
   notify: Restart sshd
 

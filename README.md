@@ -5,9 +5,9 @@ This repository contains a configuration template
 to customize your environment in the
 [European Weather Cloud (EWC)](https://europeanweather.cloud/).
 The template is designed to:
-* Configure a pre-existing RockyLinux 8.10 or Ubuntu 22.04 virtual machine to
+* Configure a pre-existing virtual machine, running RockyLinux versions 9 or 8, or Ubuntu versions 24 or 22, to
 connect to an IPA server running on the same subnet, such that it:
-  * Is able to leverage DNS resolution and discover other private 
+  * Is able to leverage DNS resolution and discover other private
 hosts or public addresses
   * Is remotely accessible via public key or password to centrally
 managed LDAP users
@@ -91,38 +91,37 @@ ansible-playbook -i inventory.yml playbook.yml
 | ipa_admin_username | username of the IPA server administrator account. Example: `my-secret-password` | `string` | n/a | yes |
 | ipa_server_hostname | IPA server hostname. Example: `ipa-server-1` | `string`| n/a | yes |
 
-## SW Bill of Materials (SBoM)
+## Dependencies
+> 💡 Upon execution, a SBOM (SPDX format) is auto-generated and stored in the VM's file system root directory (see `/sbom.json`).
+The following third-party components will be included in the resulting environment:
 
-Third-party components used in the resulting environment.
-
-### RockyLinux 8.10 Environment
+### RockyLinux Environment
 The following components will be included in the resulting environment:
 
-| Component | Version | License | Home URL |
-|------|---------|---------|--------|
-| sssd | 2.9 | PLv3+ | https://github.com/SSSD/sssd |
-| sssd-tools | 2.9 | GPLv3+ | https://github.com/SSSD/sssd |
-| authselect | 1.2 | GPLv3+ | https://github.com/authselect/authselect |
-| oddjob | 0.34 | BSD | https://pagure.io/oddjob |
-| oddjob-mkhomedir | 0.34 | BSD | https://pagure.io/oddjob |
-| ipa-client | 4.9 | GPLv3+ | http://www.freeipa.org |
-| NetworkManager | 1.40 | GPLv2+ | https://networkmanager.dev |
+| Component | Home URL |
+|------|---------|
+| sssd | https://github.com/SSSD/sssd |
+| sssd-tools | https://github.com/SSSD/sssd |
+| authselect || https://github.com/authselect/authselect |
+| oddjob | https://pagure.io/oddjob |
+| oddjob-mkhomedir |  https://pagure.io/oddjob |
+| ipa-client | http://www.freeipa.org |
 
-### Ubuntu 22.04 Environment
+### Ubuntu Environment
 The following components will be included in the resulting environment:
 
-| Component | Version | License | Home URL |
-|------|---------|---------|--------|
-| sssd | 2.6 | GPLv3+ | https://github.com/SSSD/sssd |
-| sssd-tools | 2.6 | GPLv3+  | https://github.com/SSSD/sssd |
-| libnss-sss  | 2.6 | GPLv3+  | https://github.com/SSSD/sssd |
-| libpam-sss | 2.6 |  GPLv3+  | https://github.com/SSSD/sssd |
-| oddjob | 0.34 | BSD  | https://pagure.io/oddjob |
-| oddjob-mkhomedir | 0.34 | BSD | https://pagure.io/oddjob |
-| ipa-client | 4.9 | GPLv3+ | http://www.freeipa.org |
-| cracklib-runtime | 2.9 | LGPL-2.1  | https://github.com/cracklib/cracklib |
-| nfs-common | 2.6 | GPL-2 | https://linux-nfs.org |
-| chrony | 4.2 | GPLv2+ | https://chrony.tuxfamily.org |
+| Component |  Home URL |
+|------|---------|
+| sssd |  https://github.com/SSSD/sssd |
+| sssd-tools |  https://github.com/SSSD/sssd |
+| libnss-sss  | https://github.com/SSSD/sssd |
+| libpam-sss | https://github.com/SSSD/sssd |
+| oddjob |  https://pagure.io/oddjob |
+| oddjob-mkhomedir |  https://pagure.io/oddjob |
+| ipa-client |  http://www.freeipa.org |
+| cracklib-runtime | https://github.com/cracklib/cracklib |
+| nfs-common |  https://linux-nfs.org |
+| chrony | https://chrony.tuxfamily.org |
 
 
 ## Changelog

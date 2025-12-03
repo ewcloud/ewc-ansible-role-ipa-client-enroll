@@ -102,7 +102,7 @@ The following components will be included in the resulting environment:
 |------|---------|
 | sssd | https://github.com/SSSD/sssd |
 | sssd-tools | https://github.com/SSSD/sssd |
-| authselect || https://github.com/authselect/authselect |
+| authselect | https://github.com/authselect/authselect |
 | oddjob | https://pagure.io/oddjob |
 | oddjob-mkhomedir |  https://pagure.io/oddjob |
 | ipa-client | http://www.freeipa.org |
